@@ -82,6 +82,7 @@ class TSP(object):
 
                 if self.plot:
                     # plot_city(self.citys, sa.S)
+                    pass
 
                 # 温度衰减
                 sa.T = sa.T * sa.alpha
@@ -90,7 +91,7 @@ class TSP(object):
 
         # 遗传算法
         elif method == 'GA':
-            ga = GA(self.n, 100, 0.7, 0.02, self.match_fun)
+            ga = GA(self.n, 100, 0.8, 0.05, self.match_fun)
             # ga.evolution()
 
             while ga.generation < 3000:
@@ -103,6 +104,7 @@ class TSP(object):
 
                 if (ga.generation%30 == 0) and self.plot:
                     # plot_city(self.citys, ga.best.gene)
+                    pass
 
             self.best_path =  ga.best.gene
 

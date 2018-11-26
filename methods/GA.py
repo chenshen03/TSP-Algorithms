@@ -8,15 +8,17 @@ class GA(object):
     遗传算法
     """
 
-    def __init__(self, gene_length, population_nums=100, cross_prob=.8, mutation_prob=.03, match_fun=lambda gene:1):
+    def __init__(self, gene_length, population_nums=100, cross_prob=0.8, mutation_prob=.03, match_fun=lambda gene:1):
         self.gene_length = gene_length
         self.population_nums = population_nums
         self.cross_prob = cross_prob
         self.mutation_prob = mutation_prob
         self.match_fun = match_fun
-        self.best = None
         self.generation = 0
         self.total_score = 0.0
+        self.best = None
+        self.elites = None
+        self.elites_num = 20
 
         self.init_population()
 
@@ -34,12 +36,12 @@ class GA(object):
 
     def evaluate(self):
         self.total_score = 0.0
-        self.best = self.population[0]
         for p in self.population:
             p.score = self.match_fun(p.gene)
             self.total_score = self.total_score + p.score
-            if self.best.score < p.score:
-                self.best = p
+
+        self.elites = sorted(self.population, key=lambda x:x.score, reverse=True)
+        self.best = self.elites[0]
 
     def cross(self, parent1, parent2):
         """
@@ -112,8 +114,9 @@ class GA(object):
         """
         self.evaluate()
         next_population = []
-        next_population.append(self.best)
-        while len(next_population) < self.population_nums:
+        next_population.extend(self.elites[0:self.elites_num])
+
+        while len(next_population) < self.population_nums-self.elites_num:
             next_population.append(self.generate_one())
         self.population = next_population
         self.generation += 1
