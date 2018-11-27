@@ -32,7 +32,7 @@ class GA(object):
             gene = list(range(self.gene_length))
             random.shuffle(gene)
             self.population.append(Life(gene))
-        self.best = self.population[0]
+        self.evaluate()
 
     def evaluate(self):
         self.total_score = 0.0
@@ -64,15 +64,26 @@ class GA(object):
                 p1len += 1
         return next_gene
 
-    def mutation(self, gene):
+    def mutation(self, gene, method='order'):
         """
         变异运算
         :param gene: 要进行变异的基因
         :return: 变异后的新基因
         """
-        i1 = random.randint(0, self.gene_length - 1)
-        i2 = random.randint(0, self.gene_length - 1)
-        gene[i1], gene[i2] = gene[i2], gene[i1]
+        if method == 'order':
+            i1 = random.randint(0, self.gene_length - 1)
+            i2 = random.randint(0, self.gene_length - 1)
+            gene[i1], gene[i2] = gene[i2], gene[i1]
+        elif method == 'shuffle':
+            i1 = random.randint(0, self.gene_length - 2)
+            i2 = random.randint(i1+1, self.gene_length - 1)
+            temp_gene = gene[i1:i2]
+            random.shuffle(temp_gene)
+            gene[i1:i2] = temp_gene
+        elif method == 'position':
+            i1 = random.randint(0, self.gene_length - 1)
+            i2 = random.randint(0, self.gene_length - 1)
+            # TODO 完善基于位置的变异算子
         return gene
 
     def select(self):
@@ -103,7 +114,7 @@ class GA(object):
             gene = parent1.gene
 
         if random.random() < self.mutation_prob:
-            gene = self.mutation(gene)
+            gene = self.mutation(gene, method='order')
 
         return Life(gene)
 
@@ -112,7 +123,6 @@ class GA(object):
         产生下一代种群
         :return: 将当前种群更新为下一代种群
         """
-        self.evaluate()
         next_population = []
         next_population.extend(self.elites[0:self.elites_num])
 
@@ -120,13 +130,14 @@ class GA(object):
             next_population.append(self.generate_one())
         self.population = next_population
         self.generation += 1
+        self.evaluate()
 
     def finished(self):
         """
         判断遗传算法是否终止
         :return: True or False
         """
-        return self.generation < 2000
+        return self.generation < 3000
 
     def evolution(self):
         """

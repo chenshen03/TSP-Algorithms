@@ -102,11 +102,13 @@ class TSP(object):
                 print("generation: {}".format(ga.generation))
                 print(score)
 
-                if (ga.generation%30 == 0) and self.plot:
+                if (ga.generation % 30 == 0) and self.plot:
                     # plot_city(self.citys, ga.best.gene)
                     pass
 
             self.best_path =  ga.best.gene
+            for p in ga.population:
+                print(1/p.score)
 
         print(self.best_path)
 
