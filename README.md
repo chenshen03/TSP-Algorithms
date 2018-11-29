@@ -14,6 +14,7 @@
 ├─ methods
 │  ├─ GA.py          遗传算法
 │  ├─ SA.py          模拟退火算法
+│  ├─ Hopfield.py    Hopfield神经网络
 │  └─ __init__.py
 ├─ tools             工具
 │  ├─ __init__.py
