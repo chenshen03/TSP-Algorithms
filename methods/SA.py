@@ -3,7 +3,7 @@
 import numpy as np
 
 
-class SA:
+class SA(object):
     """
     模拟退火算法
     """

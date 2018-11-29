@@ -13,31 +13,24 @@ class TSP(object):
     """
 
     def __init__(self, plot=1):
-        self.init_citys()
+        self.citys = china_citys()
         self.n = len(self.citys)
-        self.init_dist()
+        self.Dist = self.init_dist()
         self.best_path = None
         self.plot = plot
-
-    def init_citys(self):
-        """
-        加载城市数据
-        :return: 城市数据
-        """
-        self.citys = china_citys()
-
 
     def init_dist(self):
         """
         根据城市数据计算每个城市间的距离
         :return: 城市的距离矩阵
         """
-        self.Dist = np.zeros((self.n, self.n))
+        dists = np.zeros((self.n, self.n))
         for i in range(self.n):
             for j in range(i, self.n):
-                self.Dist[i][j] = self.Dist[j][i] = np.linalg.norm(self.citys[i] - self.citys[j])
+                dists[i][j] = dists[j][i] = np.linalg.norm(self.citys[i] - self.citys[j])
+        return dists
 
-    def calculate_dist(self, path):
+    def calc_dist(self, path):
         """
         计算路径path下的城市总距离
         :param path: 完成TSP问题的一个城市路径
@@ -49,13 +42,6 @@ class TSP(object):
         dist_sum = dist_sum + self.Dist[path[self.n - 1]][path[0]]
         return dist_sum
 
-    def match_fun(self, gene):
-        """
-        遗传算法中的适应性计算函数
-        :return: 适应性函数
-        """
-        return 1.0 / self.calculate_dist(gene)
-
     def search(self, method='SA'):
         """
         利用method解决TSP问题
@@ -63,13 +49,14 @@ class TSP(object):
         :return:
         """
 
-        if self.plot: figure()
+        if self.plot:
+            figure()
 
         scores = []
 
         # 模拟退火算法
         if method == 'SA':
-            sa = SA(self.n, energy_fun=self.calculate_dist)
+            sa = SA(self.n, energy_fun=self.calc_dist)
             # sa.search()
 
             while sa.T >= 0.1:
@@ -91,7 +78,7 @@ class TSP(object):
 
         # 遗传算法
         elif method == 'GA':
-            ga = GA(self.n, 100, 0.8, 0.05, self.match_fun)
+            ga = GA(self.n, 100, 0.8, 0.05, lambda gene: 1.0 / self.calc_dist(gene))
             # ga.evolution()
 
             while ga.generation < 3000:
@@ -106,7 +93,7 @@ class TSP(object):
                     # plot_city(self.citys, ga.best.gene)
                     pass
 
-            self.best_path =  ga.best.gene
+            self.best_path = ga.best.gene
             for p in ga.population:
                 print(1/p.score)
 
