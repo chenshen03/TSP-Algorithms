@@ -101,22 +101,16 @@ class Hopfield(object):
         :param distance: 距离矩阵
         :return: 最佳路径，网络能量
         """
-        # 初始化神经网络的输入状态（电路的输入电压U）
         U = 1 / 2 * self.U0 * np.log(self.N - 1) + (2 * (np.random.random((self.N, self.N))) - 1)
-        # 初始化神经网络的输出状态（电路的输出电压V）
         V = self.calc_V(U, self.U0)
         energys = np.array([0.0 for x in range(num_iter)])
         best_distance = np.inf
         best_route = []
 
         for i in range(num_iter):
-            # 利用动态方程计算du
             du = self.calc_du(V, distance)
-            # 由一阶欧拉法更新下一个时间的输入状态（电路的输入电压U）
             U = self.calc_U(U, du, self.step)
-            # 由sigmoid函数更新下一个时间的输出状态（电路的输出电压V）
             V = self.calc_V(U, self.U0)
-            # 计算当前网络的能量E
             energys[i] = self.calc_energy(V, distance)
             route = self.check_path(V)
             if len(np.unique(route)) == self.N:
@@ -129,5 +123,4 @@ class Hopfield(object):
                     print("route: {}".format(best_route))
                     # H_path = []
                     # [H_path.append((route[i], route[i + 1])) for i in range(len(route) - 1)]
-
         return best_route, energys
