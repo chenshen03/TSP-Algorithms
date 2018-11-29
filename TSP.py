@@ -5,6 +5,7 @@ from datas.citydata import china_citys
 from tools.plot import figure, plot_city, plot_iter_curve
 from methods.GA import GA
 from methods.SA import SA
+from methods.Hopfield import Hopfield
 
 
 class TSP(object):
@@ -12,10 +13,10 @@ class TSP(object):
     旅行商问题
     """
 
-    def __init__(self, plot=1):
+    def __init__(self, plot=False):
         self.citys = china_citys()
         self.n = len(self.citys)
-        self.Dist = self.init_dist()
+        self.dists = self.init_dist()
         self.best_path = None
         self.plot = plot
 
@@ -38,8 +39,8 @@ class TSP(object):
         """
         dist_sum = 0.0
         for i in range(self.n - 1):
-            dist_sum = dist_sum + self.Dist[path[i]][path[i + 1]]
-        dist_sum = dist_sum + self.Dist[path[self.n - 1]][path[0]]
+            dist_sum = dist_sum + self.dists[path[i]][path[i + 1]]
+        dist_sum = dist_sum + self.dists[path[self.n - 1]][path[0]]
         return dist_sum
 
     def search(self, method='SA'):
@@ -97,13 +98,17 @@ class TSP(object):
             for p in ga.population:
                 print(1/p.score)
 
-        print(self.best_path)
+        # Hopfield神经网络
+        elif method == 'Hopfield':
+            network = Hopfield(self.n, 0.0009, 0.0001, self.calc_dist)
+            self.best_path, scores = network.train(50000, self.dists)
 
+        print("best path: {}".format(self.best_path))
         if self.plot:
             plot_iter_curve(scores, 'China Citys')
             plot_city(self.citys, self.best_path)
 
 
 if __name__ == '__main__':
-    tsp = TSP()
-    tsp.search('GA')
+    tsp = TSP(True)
+    tsp.search('Hopfield')
